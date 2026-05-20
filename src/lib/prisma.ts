@@ -1,5 +1,5 @@
-// Prisma client - will be initialized when Prisma is installed
-// For now, this is a mock client that simulates database operations
+// Prisma client singleton with driver adapter
+// Falls back to in-memory mock if real database is unavailable
 
 const mockStore: any[] = []
 
@@ -7,17 +7,21 @@ let prisma: any = null
 
 try {
   const { PrismaClient } = require('@prisma/client')
-  const globalForPrisma = globalThis as unknown as {
-    prisma: typeof PrismaClient | undefined
+  const { PrismaPg } = require('@prisma/adapter-pg')
+  const globalForPrisma = globalThis as unknown as { prisma: any }
+
+  if (process.env.DATABASE_URL) {
+    const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
+    prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter })
+  } else {
+    throw new Error('DATABASE_URL not set')
   }
-  
-  prisma = globalForPrisma.prisma || new PrismaClient()
-  
+
   if (process.env.NODE_ENV !== 'production') {
     globalForPrisma.prisma = prisma
   }
-  
-  console.log('✅ Prisma client initialized successfully')
+
+  console.log('✅ Prisma client initialized with PostgreSQL adapter')
 } catch (error) {
   console.log('⚠️ Prisma client not available, using in-memory database')
   // Fallback to in-memory operations with persistence

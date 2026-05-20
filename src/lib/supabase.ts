@@ -1,5 +1,18 @@
-// Mock Supabase client - will be replaced when @supabase/supabase-js is installed
-// This provides the same API but uses in-memory storage
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+
+// Real Supabase client for direct database access
+// Uses anon key — safe for client and server
+export const realSupabase = createSupabaseClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+  {
+    auth: { persistSession: true, autoRefreshToken: true },
+  }
+)
+
+// =============================================================================
+// Legacy mock system — untouched
+// =============================================================================
 
 // Type definitions for mock client
 interface SupabaseQueryBuilder {
@@ -15,12 +28,12 @@ interface SupabaseQueryBuilder {
 // Mock createClient function
 const createClient = (url: string, key: string, options?: any): any => {
   console.log('📝 Using mock Supabase client (install @supabase/supabase-js for real connection)');
-  
+
   // In-memory storage
   const storage: Record<string, any[]> = {
     leads: []
   };
-  
+
   // Helper to create query builder
   const createQueryBuilder = (table: string): SupabaseQueryBuilder => {
     let currentQuery = {
@@ -29,12 +42,12 @@ const createClient = (url: string, key: string, options?: any): any => {
       orderBy: '',
       isSingle: false
     };
-    
+
     return {
       select: async (columns = '*') => {
         console.log(`[Mock Supabase] select from ${table} with columns: ${columns}`);
         let data = storage[table] || [];
-        
+
         // Apply ordering if set
         if (currentQuery.orderBy) {
           data = [...data].sort((a, b) => {
@@ -43,66 +56,66 @@ const createClient = (url: string, key: string, options?: any): any => {
             return new Date(bVal).getTime() - new Date(aVal).getTime();
           });
         }
-        
+
         return { data, error: null };
       },
-      
+
       insert: async (data: any) => {
         console.log(`[Mock Supabase] insert into ${table}:`, data);
-        const newItem = { 
-          id: `mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, 
+        const newItem = {
+          id: `mock_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           ...data,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         };
-        
+
         if (!storage[table]) {
           storage[table] = [];
         }
         storage[table].push(newItem);
-        
+
         const result = currentQuery.isSingle ? newItem : [newItem];
         return { data: result, error: null };
       },
-      
+
       update: async (data: any) => {
         console.log(`[Mock Supabase] update ${table}:`, data);
         if (!storage[table]) return { data: [], error: null };
-        
-        const updated = storage[table].map(item => 
+
+        const updated = storage[table].map(item =>
           item.id === currentQuery.where.id ? { ...item, ...data, updated_at: new Date().toISOString() } : item
         );
-        
+
         storage[table] = updated;
-        const result = currentQuery.isSingle ? updated.find(item => item.id === currentQuery.where.id) : updated;
+        const result = currentQuery.isSingle ? updated.find((item: any) => item.id === currentQuery.where.id) : updated;
         return { data: result, error: null };
       },
-      
+
       delete: async () => {
         console.log(`[Mock Supabase] delete from ${table}`);
         if (!storage[table]) return { data: [], error: null };
-        
-        storage[table] = storage[table].filter(item => item.id !== currentQuery.where.id);
+
+        storage[table] = storage[table].filter((item: any) => item.id !== currentQuery.where.id);
         return { data: [], error: null };
       },
-      
+
       eq: (column: string, value: any) => {
         currentQuery.where[column] = value;
         return createQueryBuilder(table);
       },
-      
+
       order: (column: string, options: any = {}) => {
         currentQuery.orderBy = column;
         return createQueryBuilder(table);
       },
-      
+
       single: () => {
         currentQuery.isSingle = true;
         return createQueryBuilder(table);
       }
     };
   };
-  
+
   return {
     from: (table: string) => createQueryBuilder(table),
     auth: {
@@ -134,22 +147,22 @@ export const leadsApi = {
       .from('leads')
       .select('*')
       .order('created_at', { ascending: false });
-    
+
     if (error) throw error;
     return data || [];
   },
-  
+
   create: async (leadData: any) => {
     const { data, error } = await supabase
       .from('leads')
       .insert(leadData)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   },
-  
+
   update: async (id: string, updates: any) => {
     const { data, error } = await supabase
       .from('leads')
@@ -157,17 +170,17 @@ export const leadsApi = {
       .eq('id', id)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   },
-  
+
   delete: async (id: string) => {
     const { error } = await supabase
       .from('leads')
       .delete()
       .eq('id', id);
-    
+
     if (error) throw error;
     return true;
   }
