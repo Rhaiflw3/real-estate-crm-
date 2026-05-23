@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
+import { LEAD_STATUSES } from "@/lib/constants/lead-status"
 import type { Lead, CreateLeadInput } from "@/lib/types/lead"
 
 const initialFormData: CreateLeadInput = {
@@ -223,8 +224,11 @@ export function AddLeadDialog({ onLeadAdded }: AddLeadDialogProps) {
                   <SelectValue placeholder="Selecciona un estado" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="New">Nuevo</SelectItem>
-                  <SelectItem value="Contacted">Contactado</SelectItem>
+                  {LEAD_STATUSES.map((s) => (
+                    <SelectItem key={s} value={s}>
+                      {s}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import type { Lead } from '@/lib/types/lead';
+import { LEAD_STATUSES } from '@/lib/constants/lead-status';
 import { leadsApi } from '@/lib/supabase';
 
 // Helper to transform Supabase data to our Lead type
@@ -109,7 +110,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const validStatuses = ['New', 'Contacted', 'Qualified'] as const;
+    const validStatuses = LEAD_STATUSES;
     if (!validStatuses.includes(leadData.status as any)) {
       return NextResponse.json(
         { error: 'Invalid status value' },

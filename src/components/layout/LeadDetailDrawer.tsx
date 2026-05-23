@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import { X, Phone, Mail, Calendar, Sparkles } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -30,6 +29,9 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer"
 import { useToast } from "@/components/ui/use-toast"
+import { LeadStatusBadge } from "@/components/leads/LeadStatusBadge"
+import { LEAD_STATUSES } from "@/lib/constants/lead-status"
+import type { LeadStatus } from "@/lib/constants/lead-status"
 import type { Lead } from "@/lib/types/lead"
 
 interface LeadDetailDrawerProps {
@@ -38,22 +40,6 @@ interface LeadDetailDrawerProps {
   onOpenChange: (open: boolean) => void
   onLeadUpdated?: (lead: Lead) => void
   onLeadDeleted?: (id: string) => void
-}
-
-function getStatusColor(status: Lead['status']): {
-  variant: 'default' | 'secondary' | 'outline'
-  className: string
-} {
-  switch (status) {
-    case "New":
-      return { variant: 'default', className: 'bg-blue-500 text-white' }
-    case "Contacted":
-      return { variant: 'secondary', className: 'bg-green-100 text-green-800' }
-    case "Qualified":
-      return { variant: 'default', className: 'bg-purple-500 text-white' }
-    default:
-      return { variant: 'outline', className: '' }
-  }
 }
 
 export function LeadDetailDrawer({ lead, open, onOpenChange, onLeadUpdated, onLeadDeleted }: LeadDetailDrawerProps) {
@@ -76,8 +62,6 @@ export function LeadDetailDrawer({ lead, open, onOpenChange, onLeadUpdated, onLe
   }, [lead?.id])
 
   if (!lead) return null
-
-  const statusInfo = getStatusColor(lead.status)
 
   const startEditing = () => {
     setEditForm({
@@ -284,10 +268,12 @@ export function LeadDetailDrawer({ lead, open, onOpenChange, onLeadUpdated, onLe
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="New">New</SelectItem>
-                        <SelectItem value="Contacted">Contacted</SelectItem>
-                        <SelectItem value="Qualified">Qualified</SelectItem>
-                      </SelectContent>
+                      {LEAD_STATUSES.map((s) => (
+                        <SelectItem key={s} value={s}>
+                          {s}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-1">
@@ -388,9 +374,7 @@ export function LeadDetailDrawer({ lead, open, onOpenChange, onLeadUpdated, onLe
               {/* Display: Status */}
               <div className="space-y-3">
                 <h3 className="font-semibold text-slate-700">Status</h3>
-                <Badge variant={statusInfo.variant} className={statusInfo.className}>
-                  {lead.status}
-                </Badge>
+                <LeadStatusBadge status={lead.status} />
                 <p className="text-sm text-slate-600">
                   Source: <span className="font-medium">{lead.source}</span>
                 </p>

@@ -1,9 +1,13 @@
+import { type LeadStatus } from "@/lib/constants/lead-status"
+
+export type { LeadStatus }
+
 export interface Lead {
   id: string
   name: string
   email: string
   phone?: string
-  status: 'New' | 'Contacted' | 'Qualified'
+  status: LeadStatus
   source: string
   createdAt: string
   aiSummary?: string
@@ -15,6 +19,6 @@ export interface CreateLeadInput {
   email: string
   phone: string
   source: 'WhatsApp' | 'Web' | 'Referido'
-  status: 'New' | 'Contacted'
+  status: LeadStatus
   notes: string
 }

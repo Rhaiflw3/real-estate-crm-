@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import type { Lead } from '@/lib/types/lead'
+import { LEAD_STATUSES } from '@/lib/constants/lead-status'
 import { leadsApi } from '@/lib/supabase'
 import { inMemoryLeads } from '@/lib/in-memory-store'
 
-const validStatuses: Lead['status'][] = ['New', 'Contacted', 'Qualified']
+const validStatuses: Lead['status'][] = [...LEAD_STATUSES]
 const LOCKED_FIELDS = ['id', 'createdAt', 'aiSummary']
 
 function validateUpdate(body: Record<string, unknown>): string | null {

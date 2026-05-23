@@ -1,9 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
+import { LayoutList, Kanban } from "lucide-react"
 import { AddLeadDialog } from "@/components/leads/AddLeadDialog"
 import { LeadDetailDrawer } from "@/components/layout/LeadDetailDrawer"
-import { Badge } from "@/components/ui/badge"
+import { LeadStatusBadge } from "@/components/leads/LeadStatusBadge"
+import { LeadsFilterBar } from "@/components/leads/LeadsFilterBar"
+import { LeadsKanbanView } from "@/components/leads/LeadsKanbanView"
+import { useLeadFilters } from "@/hooks/use-lead-filters"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -31,6 +35,8 @@ import {
 } from "@/components/ui/select"
 import { useToast, Toaster } from "@/components/ui/use-toast"
 import type { Lead } from "@/lib/types/lead"
+import { STATUS_STYLES, LEAD_STATUSES } from "@/lib/constants/lead-status"
+import type { LeadStatus } from "@/lib/constants/lead-status"
 
 const mockLeads: Lead[] = [
   {
@@ -184,22 +190,6 @@ function generateAiSummary(text: string): string {
   return summaryParts.join('\n');
 }
 
-function getStatusColor(status: Lead["status"]): {
-  variant: "default" | "secondary" | "outline"
-  className: string
-} {
-  switch (status) {
-    case "New":
-      return { variant: "default", className: "bg-blue-500 text-white" }
-    case "Contacted":
-      return { variant: "secondary", className: "bg-green-100 text-green-800" }
-    case "Qualified":
-      return { variant: "default", className: "bg-purple-500 text-white" }
-    default:
-      return { variant: "outline", className: "" }
-  }
-}
-
 export default function LeadsPage() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
@@ -208,7 +198,28 @@ export default function LeadsPage() {
   const [isProcessing, setIsProcessing] = useState(false)
   const [leads, setLeads] = useState<Lead[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [searchQuery, setSearchQuery] = useState("")
+  const [activeStatuses, setActiveStatuses] = useState<LeadStatus[]>([])
+  const [viewMode, setViewMode] = useState<"table" | "pipeline">("table")
   const { toast } = useToast()
+
+  const { filteredLeads, hasActiveFilters } = useLeadFilters(leads, {
+    searchQuery,
+    activeStatuses,
+  })
+
+  const handleStatusToggle = useCallback((status: LeadStatus) => {
+    setActiveStatuses((prev) =>
+      prev.includes(status)
+        ? prev.filter((s) => s !== status)
+        : [...prev, status]
+    )
+  }, [])
+
+  const handleClearFilters = useCallback(() => {
+    setSearchQuery("")
+    setActiveStatuses([])
+  }, [])
 
   // Cargar leads desde la API
   useEffect(() => {
@@ -253,7 +264,7 @@ export default function LeadsPage() {
     const locations = ['zona centro', 'suburbios', 'cerca de escuelas', 'área comercial', 'zona residencial', 'urbanización privada', 'cerca del parque', 'distrito financiero', 'playa', 'montaña']
     const budgetRanges = ['$250k-$350k', '$300k-$400k', '$350k-$500k', '$400k-$600k', '$500k-$750k', '$600k-$900k', '$150k-$250k', '$450k-$650k', '$800k-$1.2M']
     const sources = ['Website', 'WhatsApp', 'Referral', 'Social Media', 'Email', 'Phone Call']
-    const statuses: Lead['status'][] = ['New', 'Contacted', 'Qualified']
+    const statuses: Lead['status'][] = [...LEAD_STATUSES]
     const interests = ['modern kitchen', 'big backyard', 'swimming pool', 'home office', 'garage for 2 cars', '24/7 security', 'new construction', 'renovated', 'open floor plan', 'mountain view']
 
     const firstName = firstNames[Math.floor(Math.random() * firstNames.length)]
@@ -521,6 +532,42 @@ export default function LeadsPage() {
           </div>
         </div>
 
+        <LeadsFilterBar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          activeStatuses={activeStatuses}
+          onStatusToggle={handleStatusToggle}
+          onClear={handleClearFilters}
+        />
+
+        <div className="flex items-center gap-1 mb-4">
+          <button
+            type="button"
+            onClick={() => setViewMode("table")}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              viewMode === "table"
+                ? "bg-slate-900 text-white shadow-sm"
+                : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+            }`}
+          >
+            <LayoutList className="w-3.5 h-3.5" />
+            Table
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("pipeline")}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+              viewMode === "pipeline"
+                ? "bg-slate-900 text-white shadow-sm"
+                : "bg-white text-slate-600 border border-slate-200 hover:bg-slate-50"
+            }`}
+          >
+            <Kanban className="w-3.5 h-3.5" />
+            Pipeline
+          </button>
+        </div>
+
+        {viewMode === "table" ? (
         <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
           <Table>
             <TableHeader>
@@ -546,46 +593,54 @@ export default function LeadsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {leads.map((lead) => {
-                const statusInfo = getStatusColor(lead.status)
-                return (
-                  <TableRow
-                    key={lead.id}
-                    className="hover:bg-slate-100/50 cursor-pointer transition-colors"
-                    onClick={() => handleRowClick(lead)}
+              {filteredLeads.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={6}
+                    className="h-32 text-center text-sm text-slate-500"
                   >
-                    <TableCell className="font-medium text-slate-900">
-                      {lead.name}
-                    </TableCell>
-                    <TableCell className="text-slate-700">
-                      {lead.email}
-                    </TableCell>
-                    <TableCell className="text-slate-600">
-                      {lead.source}
-                    </TableCell>
-                    <TableCell>
-                      <Select
-                        value={lead.status}
-                        onValueChange={(value) => handleStatusChange(lead.id, value as Lead['status'])}
-                      >
-                        <SelectTrigger
-                          className={`h-6 w-fit gap-1 rounded-4xl border-transparent px-2 py-0.5 text-xs font-medium ${
-                            lead.status === 'New'
-                              ? 'bg-blue-500 text-white'
-                              : lead.status === 'Contacted'
-                              ? 'bg-green-100 text-green-800'
-                              : 'bg-purple-500 text-white'
-                          }`}
+                    {hasActiveFilters
+                      ? "No leads match the current filters."
+                      : "No leads yet. Add your first lead above."}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredLeads.map((lead) => {
+                  const triggerStyle = STATUS_STYLES[lead.status]
+                  return (
+                    <TableRow
+                      key={lead.id}
+                      className="hover:bg-slate-100/50 cursor-pointer transition-colors"
+                      onClick={() => handleRowClick(lead)}
+                    >
+                      <TableCell className="font-medium text-slate-900">
+                        {lead.name}
+                      </TableCell>
+                      <TableCell className="text-slate-700">
+                        {lead.email}
+                      </TableCell>
+                      <TableCell className="text-slate-600">
+                        {lead.source}
+                      </TableCell>
+                      <TableCell>
+                        <Select
+                          value={lead.status}
+                          onValueChange={(value) => handleStatusChange(lead.id, value as Lead['status'])}
                         >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="New">New</SelectItem>
-                          <SelectItem value="Contacted">Contacted</SelectItem>
-                          <SelectItem value="Qualified">Qualified</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </TableCell>
+                          <SelectTrigger
+                            className={`h-6 w-fit gap-1 rounded-4xl border-transparent px-2 py-0.5 text-xs font-medium ${triggerStyle.className}`}
+                          >
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {LEAD_STATUSES.map((s) => (
+                              <SelectItem key={s} value={s}>
+                                {s}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </TableCell>
                     <TableCell className="text-slate-600">
                       {new Date(lead.createdAt).toLocaleDateString("en-US", {
                         month: "short",
@@ -608,10 +663,18 @@ export default function LeadsPage() {
                     </TableCell>
                   </TableRow>
                 )
-              })}
+              }))}
             </TableBody>
           </Table>
         </div>
+      ) : (
+        <LeadsKanbanView
+          leads={filteredLeads}
+          activeStatuses={activeStatuses}
+          onStatusChange={handleStatusChange}
+          onCardClick={handleRowClick}
+        />
+      )}
       </div>
 
       <LeadDetailDrawer
