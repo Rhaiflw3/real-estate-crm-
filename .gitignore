@@ -39,3 +39,13 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# mock storage persistence
+/data/
+
+# project context & test files
+/contexto-realstateCRM.md
+/test-supabase.js
+
+# source excel files
+/cartera-properties/

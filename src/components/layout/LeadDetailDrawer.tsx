@@ -1,11 +1,12 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X, Phone, Mail, Calendar, Sparkles } from "lucide-react"
+import { X, Phone, Mail, Calendar, Sparkles, Home, DollarSign, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Badge } from "@/components/ui/badge"
 import {
   Select,
   SelectContent,
@@ -33,6 +34,8 @@ import { LeadStatusBadge } from "@/components/leads/LeadStatusBadge"
 import { LEAD_STATUSES } from "@/lib/constants/lead-status"
 import type { LeadStatus } from "@/lib/constants/lead-status"
 import type { Lead } from "@/lib/types/lead"
+import type { LeadProperty } from "@/lib/types/lead-property"
+import { PropertySelector } from "@/components/properties/PropertySelector"
 
 interface LeadDetailDrawerProps {
   lead: Lead | null
@@ -48,7 +51,45 @@ export function LeadDetailDrawer({ lead, open, onOpenChange, onLeadUpdated, onLe
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [linkedProperties, setLinkedProperties] = useState<LeadProperty[]>([])
+  const [showPropertySelector, setShowPropertySelector] = useState(false)
+  const [removingPropId, setRemovingPropId] = useState<string | null>(null)
   const { toast } = useToast()
+
+  useEffect(() => {
+    if (!open || !lead) return;
+    fetch(`/api/leads/${lead.id}/properties`)
+      .then((r) => r.json())
+      .then((data) => setLinkedProperties(Array.isArray(data) ? data : []))
+      .catch(() => setLinkedProperties([]));
+  }, [open, lead]);
+
+  const refreshProperties = () => {
+    if (!lead) return;
+    fetch(`/api/leads/${lead.id}/properties`)
+      .then((r) => r.json())
+      .then((data) => setLinkedProperties(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  };
+
+  const handleUnlinkProperty = async (linkId: string) => {
+    if (!lead) return;
+    setRemovingPropId(linkId);
+    try {
+      const res = await fetch(`/api/leads/${lead.id}/properties?linkId=${linkId}`, { method: "DELETE" });
+      if (res.ok) {
+        toast({ title: "✅ Desvinculado", description: "Propiedad removida del lead" });
+        refreshProperties();
+      } else {
+        const err = await res.json();
+        toast({ title: "❌ Error", description: err.error || "Error al desvincular", variant: "destructive" });
+      }
+    } catch {
+      toast({ title: "❌ Error de red", description: "No se pudo conectar", variant: "destructive" });
+    } finally {
+      setRemovingPropId(null);
+    }
+  };
 
   // Reset edit mode when drawer opens/closes or lead changes
   useEffect(() => {
@@ -380,6 +421,76 @@ export function LeadDetailDrawer({ lead, open, onOpenChange, onLeadUpdated, onLe
                 </p>
               </div>
 
+              {/* Display: Linked Properties */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-slate-700">Propiedades de Interés</h3>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowPropertySelector(true)}
+                    className="text-xs"
+                  >
+                    + Agregar
+                  </Button>
+                </div>
+                {linkedProperties.length === 0 ? (
+                  <div className="text-sm text-slate-400 bg-slate-50/50 p-3 rounded-lg border border-slate-100 italic">
+                    No hay propiedades vinculadas a este lead.
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {linkedProperties.map((lp) => (
+                      <div
+                        key={lp.id}
+                        className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-white"
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <Home className="h-4 w-4 text-slate-400 shrink-0" />
+                            <span className="font-medium text-sm text-slate-900 truncate">
+                              {lp.property?.title || 'Propiedad'}
+                            </span>
+                            <Badge
+                              variant="outline"
+                              className={`text-xs shrink-0 ${
+                                lp.interestLevel === 'Offer' ? 'border-green-300 text-green-700 bg-green-50' :
+                                lp.interestLevel === 'High' ? 'border-blue-300 text-blue-700 bg-blue-50' :
+                                lp.interestLevel === 'Medium' ? 'border-yellow-300 text-yellow-700 bg-yellow-50' :
+                                'border-slate-300 text-slate-600 bg-slate-50'
+                              }`}
+                            >
+                              {lp.interestLevel === 'Low' ? 'Bajo' :
+                               lp.interestLevel === 'Medium' ? 'Medio' :
+                               lp.interestLevel === 'High' ? 'Alto' : 'Oferta'}
+                            </Badge>
+                          </div>
+                          {lp.property && (
+                            <div className="flex items-center gap-3 mt-1 text-xs text-slate-500">
+                              <span className="flex items-center gap-1">
+                                <DollarSign className="h-3 w-3" />
+                                {lp.property.price.toLocaleString()}
+                              </span>
+                              <span>{lp.property.type}</span>
+                              {lp.property.city && <span>{lp.property.city}</span>}
+                            </div>
+                          )}
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 shrink-0 ml-2 text-slate-400 hover:text-red-500"
+                          onClick={() => handleUnlinkProperty(lp.id)}
+                          disabled={removingPropId === lp.id}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* Display: Notes */}
               <div className="space-y-3">
                 <h3 className="font-semibold text-slate-700">Notes</h3>
@@ -459,6 +570,15 @@ export function LeadDetailDrawer({ lead, open, onOpenChange, onLeadUpdated, onLe
           </div>
         </DialogContent>
       </Dialog>
+
+      {lead && (
+        <PropertySelector
+          open={showPropertySelector}
+          onOpenChange={setShowPropertySelector}
+          leadId={lead.id}
+          onPropertyLinked={refreshProperties}
+        />
+      )}
     </Drawer>
   )
 }

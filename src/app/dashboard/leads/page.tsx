@@ -593,7 +593,18 @@ export default function LeadsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredLeads.length === 0 ? (
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, i) => (
+                  <TableRow key={i}>
+                    <TableCell><div className="h-4 w-32 bg-slate-200 rounded animate-pulse" /></TableCell>
+                    <TableCell><div className="h-4 w-40 bg-slate-200 rounded animate-pulse" /></TableCell>
+                    <TableCell><div className="h-4 w-20 bg-slate-200 rounded animate-pulse" /></TableCell>
+                    <TableCell><div className="h-6 w-20 bg-slate-200 rounded-full animate-pulse" /></TableCell>
+                    <TableCell><div className="h-4 w-24 bg-slate-200 rounded animate-pulse" /></TableCell>
+                    <TableCell><div className="h-4 w-12 bg-slate-200 rounded animate-pulse ml-auto" /></TableCell>
+                  </TableRow>
+                ))
+              ) : filteredLeads.length === 0 ? (
                 <TableRow>
                   <TableCell
                     colSpan={6}

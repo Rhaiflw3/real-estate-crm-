@@ -3,6 +3,7 @@ import type { Lead } from '@/lib/types/lead'
 import { LEAD_STATUSES } from '@/lib/constants/lead-status'
 import { leadsApi } from '@/lib/supabase'
 import { inMemoryLeads } from '@/lib/in-memory-store'
+import { getUserId } from '@/lib/auth-utils'
 
 const validStatuses: Lead['status'][] = [...LEAD_STATUSES]
 const LOCKED_FIELDS = ['id', 'createdAt', 'aiSummary']
@@ -28,6 +29,11 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userId = await getUserId()
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { id } = await params
     const body = await request.json()
 
@@ -91,6 +97,11 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const userId = await getUserId()
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     const { id } = await params
 
     // Try Supabase

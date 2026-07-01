@@ -1,4 +1,4 @@
-import { LayoutDashboard, Users, Home, Calendar } from "lucide-react"
+import { LayoutDashboard, Users, Home, Calendar, FolderKanban, FileText } from "lucide-react"
 import { NavItem } from "../types/navigation"
 
 export const NAV_ITEMS: NavItem[] = [
@@ -14,16 +14,24 @@ export const NAV_ITEMS: NavItem[] = [
     icon: Users,
     badge: 12
   },
-  // TODO: Properties — route not yet created
-  // {
-  //   label: "Properties",
-  //   href: "/dashboard/properties",
-  //   icon: Home
-  // },
-  // TODO: Calendar — route not yet created
-  // {
-  //   label: "Calendar",
-  //   href: "/dashboard/calendar",
-  //   icon: Calendar
-  // }
+  {
+    label: "Properties",
+    href: "/dashboard/properties",
+    icon: Home
+  },
+  {
+    label: "Cartera",
+    href: "/dashboard/portfolio",
+    icon: FolderKanban
+  },
+  {
+    label: "Calendar",
+    href: "/dashboard/calendar",
+    icon: Calendar
+  },
+  {
+    label: "Documents",
+    href: "/dashboard/documents",
+    icon: FileText
+  },
 ]

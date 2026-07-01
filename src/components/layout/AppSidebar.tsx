@@ -21,7 +21,7 @@ export function AppSidebar() {
       <div className="p-6 border-b border-slate-800/20">
         <div className="flex items-center gap-3">
           <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-gradient-to-br from-blue-600 to-blue-800">
-            <Building className="w-6 h-6 text-white" />
+            <Building className="w-6 h-6 text-white" suppressHydrationWarning />
           </div>
           <div className="flex flex-col">
             <span className="font-bold text-lg text-white tracking-tight">
@@ -48,7 +48,7 @@ export function AppSidebar() {
                   )}
                 >
                   <div className="flex items-center gap-3">
-                    <item.icon className={cn("w-5 h-5", active ? "text-white" : "text-slate-400")} />
+                    <item.icon className={cn("w-5 h-5", active ? "text-white" : "text-slate-400")} suppressHydrationWarning />
                     <span className="font-medium">{item.label}</span>
                   </div>
                   {item.badge && (

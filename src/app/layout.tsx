@@ -26,8 +26,22 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+
+      <body className="min-h-full flex flex-col font-sans">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function(){
+                function clean(){var e=document.querySelectorAll('svg');for(var i=0;i<e.length;i++){var s=e[i];for(var j=s.attributes.length-1;j>=0;j--){var a=s.attributes[j];if(a.name.indexOf('data-darkreader-')===0)s.removeAttribute(a.name)}if(s.style){for(var k=s.style.length-1;k>=0;k--){var p=s.style[k];if(p.indexOf('--darkreader-')===0)s.style.removeProperty(p)}}}}
+                clean();var t=setInterval(clean,50);setTimeout(function(){clearInterval(t)},8e3)
+              })();
+            `,
+          }}
+        />
+        {children}
+      </body>
     </html>
   );
 }

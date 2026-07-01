@@ -31,7 +31,7 @@ export function MobileNav() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild className="lg:hidden">
         <button className="p-2 text-slate-600 hover:text-slate-900">
-          <Menu className="w-6 h-6" />
+          <Menu className="w-6 h-6" suppressHydrationWarning />
         </button>
       </SheetTrigger>
       <SheetContent side="left" className="w-72 p-0 border-r border-slate-800/20 bg-slate-950">
