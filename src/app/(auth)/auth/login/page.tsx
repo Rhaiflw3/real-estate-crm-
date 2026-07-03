@@ -2,7 +2,6 @@
 
 import { useActionState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
-import Link from 'next/link'
 import { login, signInWithGoogle } from '../../actions'
 
 function LoginForm() {
@@ -123,11 +122,8 @@ function LoginForm() {
           </div>
         </div>
 
-        <div className="mt-8 text-center text-sm text-slate-400">
-          <span>Don't have an account?</span>{' '}
-          <Link href={`/auth/signup?redirect=${encodeURIComponent(redirectPath)}`} className="text-blue-500 hover:text-blue-400 font-medium transition-colors">
-            Create one now
-          </Link>
+        <div className="mt-8 text-center text-sm text-slate-500">
+          Acceso privado — invitación requerida
         </div>
       </div>
     </div>

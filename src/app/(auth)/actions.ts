@@ -31,38 +31,7 @@ export async function login(prevState: any, formData: FormData) {
 }
 
 export async function signup(prevState: any, formData: FormData) {
-  const email = formData.get('email') as string
-  const password = formData.get('password') as string
-  const confirmPassword = formData.get('confirmPassword') as string
-  const name = formData.get('name') as string
-
-  if (!email || !password || !name) {
-    return { error: 'All fields are required' }
-  }
-
-  if (password !== confirmPassword) {
-    return { error: 'Passwords do not match' }
-  }
-
-  const supabase = await createClient()
-  const { error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        name,
-      }
-    }
-  })
-
-  if (error) {
-    console.error('[Auth] Signup failure:', error.message)
-    return { error: error.message }
-  }
-
-  console.log('[Auth] Signup success')
-  revalidatePath('/', 'layout')
-  redirect('/auth/login?message=Check your email to verify your account')
+  return { error: 'El registro público no está disponible. Contacta al administrador para recibir una invitación.' }
 }
 
 export async function logout() {
