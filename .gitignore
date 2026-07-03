@@ -49,3 +49,5 @@ next-env.d.ts
 
 # source excel files
 /cartera-properties/
+
+.vercel
