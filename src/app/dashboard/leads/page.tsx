@@ -81,121 +81,11 @@ const mockLeads: Lead[] = [
   },
 ]
 
-const simulateAIProcessing = async (text: string): Promise<Partial<Lead>> => {
-  // Debug: log input text
-  console.log('📝 IA Processing text:', text.substring(0, 50) + (text.length > 50 ? '...' : ''))
-  
-  // Simular procesamiento de IA con retraso de 1500ms
-  await new Promise(resolve => setTimeout(resolve, 1500))
-  
-  // Regex avanzados según especificaciones
-  const emailRegex = /[^\s@]+@[^\s@]+\.[^\s@]+/g
-  const phoneRegex = /\b\d{8,}\b/g  // Números de más de 7 dígitos
-  const nameRegex = /^[A-Z][a-zA-ZñÑáéíóúÁÉÍÓÚüÜ\s]{2,}(?:\n|$)/m  // Primera línea con mayúscula inicial
-  
-  const emails = text.match(emailRegex) || []
-  const phones = text.match(phoneRegex) || []
-  const nameMatch = text.match(nameRegex)
-  
-  // Detección de nombre alternativa: buscar patrones comunes
-  let name = 'Cliente identificado por IA'
-  if (nameMatch) {
-    name = nameMatch[0].trim()
-  } else {
-    // Buscar patrones como "Hola, soy X" o "Mi nombre es X"
-    const altNameMatch = text.match(/(?:hola,?\s+soy|mi\s+nombre\s+es|me\s+llamo)\s+([A-Z][a-zA-ZñÑáéíóúÁÉÍÓÚüÜ\s]{2,})/i)
-    if (altNameMatch) {
-      name = altNameMatch[1].trim()
-    }
-  }
-  
-  // Determinar estado basado en intención detectada
-  let status: Lead['status'] = 'New'
-  const lowerText = text.toLowerCase()
-  if (lowerText.includes('contact') || lowerText.includes('habl')) {
-    status = 'Contacted'
-  } else if (lowerText.includes('interes') || lowerText.includes('quiero') || lowerText.includes('necesito')) {
-    status = 'Qualified'
-  }
-  
-  // Determinar fuente inteligente
-  let source = 'AI Text Import'
-  if (lowerText.includes('whatsapp')) source = 'WhatsApp'
-  else if (lowerText.includes('email') || lowerText.includes('correo')) source = 'Email'
-  else if (lowerText.includes('web') || lowerText.includes('sitio')) source = 'Website'
-  else if (lowerText.includes('referido') || lowerText.includes('recomendado')) source = 'Referral'
-  
-  // Debug: log generated AI summary
-  const aiSummary = generateAiSummary(text)
-  console.log('🧠 AI Summary generado:', aiSummary.substring(0, 80) + (aiSummary.length > 80 ? '...' : ''))
-  
-  return {
-    name,
-    email: emails[0] || 'correo-no-detectado@empresa.com',
-    status,
-    source,
-    aiSummary: aiSummary
-  }
-}
 
-function generateAiSummary(text: string): string {
-  const lowerText = text.toLowerCase();
-  
-  // Detectar intereses clave del cliente
-  const interests: string[] = [];
-  
-  // Detectar tipo de propiedad
-  if (lowerText.includes('casa')) interests.push('casas');
-  if (lowerText.includes('apartamento') || lowerText.includes('departamento') || lowerText.includes('piso')) interests.push('apartamentos');
-  if (lowerText.includes('comercial') || lowerText.includes('local')) interests.push('propiedades comerciales');
-  if (lowerText.includes('terreno') || lowerText.includes('lote')) interests.push('terrenos');
-  
-  // Detectar especificaciones
-  if (lowerText.includes('habitacion') || lowerText.includes('dormitorio') || lowerText.includes('recámara')) {
-    const roomMatch = text.match(/(\d+)\s*(?:habitaciones?|dormitorios?|recámaras?)/i);
-    if (roomMatch) {
-      interests.push(`${roomMatch[1]} habitaciones`);
-    }
-  }
-  
-  // Detectar ubicación
-  if (lowerText.includes('centro') || lowerText.includes('downtown')) interests.push('ubicación céntrica');
-  if (lowerText.includes('suburbio') || lowerText.includes('suburb')) interests.push('zona suburbana');
-  if (lowerText.includes('playa') || lowerText.includes('mar')) interests.push('cerca de la playa');
-  
-  // Detectar presupuesto
-  const budgetMatch = text.match(/(?:presupuesto|budget|hasta|\$)\s*(\d[\d.,]*\d*)/);
-  const budget = budgetMatch ? `Presupuesto: $${budgetMatch[1]}` : '';
-  
-  // Detectar urgencia
-  const urgency = lowerText.includes('urgente') || lowerText.includes('inmediato') 
-    ? 'Cliente manifiesta urgencia' 
-    : '';
-  
-  // Construir resumen
-  const interestText = interests.length > 0 
-    ? `Interesado en: ${interests.join(', ')}.`
-    : 'Interés general en bienes raíces.';
-    
-  const extractedText = text.substring(0, 120).trim();
-  const summaryParts = [
-    'Lead extraído automáticamente:',
-    interestText,
-    budget,
-    urgency,
-    `\nExtracto: "${extractedText}${text.length > 120 ? '...' : ''}"`,
-    `Procesado: ${new Date().toLocaleDateString('es-ES')}`
-  ].filter(Boolean);
-
-  return summaryParts.join('\n');
-}
 
 export default function LeadsPage() {
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const [importDialogOpen, setImportDialogOpen] = useState(false)
-  const [importText, setImportText] = useState("")
-  const [isProcessing, setIsProcessing] = useState(false)
   const [leads, setLeads] = useState<Lead[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
@@ -383,85 +273,6 @@ export default function LeadsPage() {
     }
   }
 
-  const processImport = async () => {
-    if (!importText.trim()) {
-      toast({
-        title: "❌ Texto vacío",
-        description: "Por favor pega algún texto para procesar",
-        variant: "destructive"
-      })
-      return
-    }
-
-    setIsProcessing(true)
-
-    try {
-      // Procesar texto con simulación de IA
-      const processedLead = await simulateAIProcessing(importText)
-      
-      // Debug: log processed result
-      console.log('✅ IA Processed Lead:', processedLead)
-      console.log('AI Summary generado:', processedLead.aiSummary)
-      
-      // Enviar a la API
-      const response = await fetch('/api/leads', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(processedLead),
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        
-        // Crear un nuevo lead para la lista local
-        const newLead: Lead = {
-          id: data.leadId,
-          name: processedLead.name || 'Cliente Sin Nombre',
-          email: processedLead.email || 'sin-email@example.com',
-          status: processedLead.status || 'New',
-          source: processedLead.source || 'Text Import',
-          createdAt: new Date().toISOString().split('T')[0],
-          aiSummary: processedLead.aiSummary
-        }
-
-        // Actualizar lista local
-        setLeads(prev => [newLead, ...prev])
-        
-        // Resetear formulario
-        setImportText("")
-        setImportDialogOpen(false)
-        
-        toast({
-          title: "✨ IA: Lead extraído y guardado",
-          description: `${newLead.name} procesado correctamente`,
-        })
-        
-        console.log('Lead procesado por IA:', newLead)
-      } else {
-        const errorData = await response.json()
-        toast({
-          title: "❌ Error en Importación",
-          description: errorData.error || 'Error al procesar el texto',
-          variant: "destructive"
-        })
-      }
-    } catch (error) {
-      toast({
-        title: "❌ Error de Red",
-        description: "No se pudo conectar con el servidor",
-        variant: "destructive"
-      })
-      console.error('Import error:', error)
-    } finally {
-      setIsProcessing(false)
-    }
-  }
-
-  // Debug: log selected lead to verify AI data
-  console.log('Lead seleccionado:', selectedLead)
-  console.log('Lead tiene aiSummary?:', selectedLead?.aiSummary ? 'Sí' : 'No')
   
   return (
     <>
@@ -474,60 +285,7 @@ export default function LeadsPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <Dialog open={importDialogOpen} onOpenChange={setImportDialogOpen}>
-              <DialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  className="border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:text-slate-900 hover:border-slate-400 rounded-xl shadow-sm transition-all font-medium"
-                >
-                  ✨ Importar de Texto
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-2xl rounded-2xl shadow-2xl border border-slate-200">
-                <DialogHeader>
-                  <DialogTitle className="text-xl font-semibold text-slate-900">✨ Importación Inteligente</DialogTitle>
-                  <DialogDescription className="text-slate-600">
-                    Pega conversaciones de WhatsApp, emails o cualquier texto. La IA analizará automáticamente y extraerá los datos.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="mt-6">
-                  <Textarea
-                    placeholder="Ejemplo: Hola, soy Juan Pérez. Mi email es juan@empresa.com y mi teléfono es +34 612 345 678. Estoy interesado en una casa de 3 habitaciones..."
-                    value={importText}
-                    onChange={(e) => setImportText(e.target.value)}
-                    className="min-h-[200px] resize-y border border-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-100 rounded-xl shadow-sm transition-all"
-                  />
-                  <div className="mt-6 flex items-center justify-between">
-                    <div className="text-sm text-slate-500">
-                      {importText.length > 0 && `${importText.length} caracteres detectados`}
-                    </div>
-                    <Button
-                      onClick={processImport}
-                      disabled={isProcessing || !importText.trim()}
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all px-6 py-3"
-                    >
-                      {isProcessing ? (
-                        <>
-                          <div className="mr-3 flex items-center justify-center">
-                            <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
-                          </div>
-                          La IA está analizando...
-                        </>
-                      ) : (
-                        "✨ Procesar con IA"
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </DialogContent>
-            </Dialog>
-            <Button
-              variant="outline"
-              className="border-blue-300 text-blue-700 hover:bg-blue-50 hover:text-blue-800"
-              onClick={simulateAIInput}
-            >
-              🤖 Simular Entrada de IA
-            </Button>
+
             <AddLeadDialog onLeadAdded={handleLeadAdded} />
           </div>
         </div>
