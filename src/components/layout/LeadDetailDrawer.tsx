@@ -38,6 +38,7 @@ import type { LeadProperty } from "@/lib/types/lead-property"
 import type { Document } from "@/lib/types/document"
 import { PropertySelector } from "@/components/properties/PropertySelector"
 import { AddDocumentDialog } from "@/components/documents/AddDocumentDialog"
+import { DocumentPreviewModal } from "@/components/documents/DocumentPreviewModal"
 
 interface LeadDetailDrawerProps {
   lead: Lead | null
@@ -58,6 +59,8 @@ export function LeadDetailDrawer({ lead, open, onOpenChange, onLeadUpdated, onLe
   const [removingPropId, setRemovingPropId] = useState<string | null>(null)
   const [linkedDocuments, setLinkedDocuments] = useState<Document[]>([])
   const [showAddDocumentDialog, setShowAddDocumentDialog] = useState(false)
+  const [previewDoc, setPreviewDoc] = useState<Document | null>(null)
+  const [previewOpen, setPreviewOpen] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -529,7 +532,14 @@ export function LeadDetailDrawer({ lead, open, onOpenChange, onLeadUpdated, onLe
                     {linkedDocuments.map((doc) => (
                       <div
                         key={doc.id}
-                        className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-white"
+                        className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer"
+                        onClick={() => {
+                          const d = doc as any
+                          if (d.file_url || d.fileUrl) {
+                            setPreviewDoc(doc)
+                            setPreviewOpen(true)
+                          }
+                        }}
                       >
                         <div className="flex items-center gap-2 min-w-0">
                           <FileText className="h-4 w-4 text-slate-400 shrink-0" />
@@ -540,10 +550,14 @@ export function LeadDetailDrawer({ lead, open, onOpenChange, onLeadUpdated, onLe
                             <span className="text-xs text-slate-500">{doc.type}</span>
                           </div>
                         </div>
-                        {doc.description && (
-                          <span className="text-xs text-slate-400 ml-2 shrink-0" title={doc.description}>
-                            info
-                          </span>
+                        {(doc as any).file_url || (doc as any).fileUrl ? (
+                          <span className="text-xs text-blue-600 shrink-0 ml-2">View</span>
+                        ) : (
+                          doc.description && (
+                            <span className="text-xs text-slate-400 ml-2 shrink-0" title={doc.description}>
+                              info
+                            </span>
+                          )
                         )}
                       </div>
                     ))}
@@ -649,6 +663,11 @@ export function LeadDetailDrawer({ lead, open, onOpenChange, onLeadUpdated, onLe
           entityLabel={lead.name}
         />
       )}
+      <DocumentPreviewModal
+        document={previewDoc}
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+      />
     </Drawer>
   )
 }

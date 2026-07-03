@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Plus, Trash2, FileText, Search } from "lucide-react"
+import { Plus, Trash2, FileText, Search, Download, Eye } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/table"
 import { useToast, Toaster } from "@/components/ui/use-toast"
 import { AddDocumentDialog } from "@/components/documents/AddDocumentDialog"
+import { DocumentPreviewModal } from "@/components/documents/DocumentPreviewModal"
 import type { Document, EntityType } from "@/lib/types/document"
 
 const DOCUMENT_TYPE_ICONS: Record<string, string> = {
@@ -58,6 +59,8 @@ export default function DocumentsPage() {
   const [searchQuery, setSearchQuery] = useState("")
   const [entityFilter, setEntityFilter] = useState<EntityType | "All">("All")
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [previewDoc, setPreviewDoc] = useState<Document | null>(null)
+  const [previewOpen, setPreviewOpen] = useState(false)
   const { toast } = useToast()
 
   const fetchDocuments = useCallback(async () => {
@@ -183,9 +186,25 @@ export default function DocumentsPage() {
                     </TableCell>
                     <TableCell className="text-slate-500 text-sm">{formatDate(d.created_at || d.createdAt || "")}</TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(d.id)}>
-                        <Trash2 className="h-4 w-4 text-red-400 hover:text-red-600" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        {d.file_url || d.fileUrl ? (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              setPreviewDoc(doc)
+                              setPreviewOpen(true)
+                            }}
+                          >
+                            <Eye className="h-4 w-4 text-blue-500 hover:text-blue-700" />
+                          </Button>
+                        ) : (
+                          <span className="w-8" />
+                        )}
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(d.id)}>
+                          <Trash2 className="h-4 w-4 text-red-400 hover:text-red-600" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 )
@@ -196,6 +215,12 @@ export default function DocumentsPage() {
       </div>
 
       <Toaster />
+
+      <DocumentPreviewModal
+        document={previewDoc}
+        open={previewOpen}
+        onOpenChange={setPreviewOpen}
+      />
     </div>
   )
 }
