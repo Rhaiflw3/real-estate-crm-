@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { ChevronLeft, ChevronRight, Plus, Trash2, Calendar as CalendarIcon } from "lucide-react"
+import { ChevronLeft, ChevronRight, Plus, Trash2, Calendar as CalendarIcon, Link } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -46,7 +46,25 @@ export default function CalendarPage() {
   const [formTime, setFormTime] = useState("")
   const [formType, setFormType] = useState<EventType>("Task")
   const [formNotes, setFormNotes] = useState("")
+  const [isCopied, setIsCopied] = useState(false)
   const { toast } = useToast()
+
+  const copyWebCalLink = async () => {
+    try {
+      const res = await fetch("/api/calendar/feed-token")
+      if (!res.ok) throw new Error("Failed to get token")
+      const { token } = await res.json()
+      const origin = window.location.origin
+      const httpsUrl = `${origin}/api/calendar/ical?token=${token}`
+      const webcalUrl = `webcal://${origin.replace(/^https?:\/\//, '')}/api/calendar/ical?token=${token}`
+      await navigator.clipboard.writeText(webcalUrl)
+      setIsCopied(true)
+      toast({ title: "✅ WebCal link copied", description: "Paste in Apple Calendar → File → New Calendar Subscription" })
+      setTimeout(() => setIsCopied(false), 3000)
+    } catch {
+      toast({ title: "❌ Error", description: "Could not generate feed link", variant: "destructive" })
+    }
+  }
 
   const year = currentDate.getFullYear()
   const month = currentDate.getMonth()
@@ -160,16 +178,26 @@ export default function CalendarPage() {
               <ChevronRight className="h-5 w-5" />
             </Button>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setCurrentDate(new Date())
-            }}
-          >
-            <CalendarIcon className="h-4 w-4 mr-2" />
-            Today
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={copyWebCalLink}
+            >
+              <Link className="h-4 w-4 mr-2" />
+              {isCopied ? "Copied!" : "WebCal"}
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setCurrentDate(new Date())
+              }}
+            >
+              <CalendarIcon className="h-4 w-4 mr-2" />
+              Today
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-7 border-b border-slate-100">

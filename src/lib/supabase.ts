@@ -492,10 +492,26 @@ export const calendarApi = {
 };
 
 export const documentsApi = {
-  getAll: async () => {
+  getAll: async (entityType?: string, entityId?: string) => {
+    let query = supabase
+      .from('documents')
+      .select('*');
+
+    if (entityType) query = query.eq('entity_type', entityType);
+    if (entityId) query = query.eq('entity_id', entityId);
+
+    const { data, error } = await query.order('created_at', { ascending: false });
+
+    if (error) throw error;
+    return data || [];
+  },
+
+  getByEntity: async (entityType: string, entityId: string) => {
     const { data, error } = await supabase
       .from('documents')
       .select('*')
+      .eq('entity_type', entityType)
+      .eq('entity_id', entityId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;

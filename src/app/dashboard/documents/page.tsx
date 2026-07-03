@@ -4,15 +4,6 @@ import { useState, useEffect, useCallback } from "react"
 import { Plus, Trash2, FileText, Search } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
 import {
   Select,
   SelectContent,
@@ -29,7 +20,8 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useToast, Toaster } from "@/components/ui/use-toast"
-import type { Document, DocumentType, EntityType } from "@/lib/types/document"
+import { AddDocumentDialog } from "@/components/documents/AddDocumentDialog"
+import type { Document, EntityType } from "@/lib/types/document"
 
 const DOCUMENT_TYPE_ICONS: Record<string, string> = {
   PDF: "📄",
@@ -64,18 +56,14 @@ export default function DocumentsPage() {
   const [documents, setDocuments] = useState<Document[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState("")
+  const [entityFilter, setEntityFilter] = useState<EntityType | "All">("All")
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [formName, setFormName] = useState("")
-  const [formType, setFormType] = useState<DocumentType>("PDF")
-  const [formDescription, setFormDescription] = useState("")
-  const [formEntityType, setFormEntityType] = useState<EntityType>("Property")
-  const [formEntityId, setFormEntityId] = useState("")
-  const [formNotes, setFormNotes] = useState("")
   const { toast } = useToast()
 
   const fetchDocuments = useCallback(async () => {
     try {
-      const response = await fetch("/api/documents")
+      const params = entityFilter === "All" ? "" : `?entityType=${entityFilter}`
+      const response = await fetch(`/api/documents${params}`)
       if (response.ok) {
         const data = await response.json()
         setDocuments(data)
@@ -85,48 +73,9 @@ export default function DocumentsPage() {
     } finally {
       setIsLoading(false)
     }
-  }, [])
+  }, [entityFilter])
 
   useEffect(() => { fetchDocuments() }, [fetchDocuments])
-
-  const handleAddDocument = async () => {
-    if (!formName.trim() || !formEntityId.trim()) {
-      toast({ title: "❌ Name and Entity ID are required", variant: "destructive" })
-      return
-    }
-
-    try {
-      const response = await fetch("/api/documents", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formName,
-          type: formType,
-          description: formDescription || undefined,
-          entityType: formEntityType,
-          entityId: formEntityId,
-          notes: formNotes || undefined,
-        }),
-      })
-
-      if (response.ok) {
-        const result = await response.json()
-        setDocuments((prev) => [result.data, ...prev])
-        setFormName("")
-        setFormType("PDF")
-        setFormDescription("")
-        setFormNotes("")
-        setFormEntityId("")
-        setDialogOpen(false)
-        toast({ title: "✅ Document created" })
-      } else {
-        const err = await response.json()
-        toast({ title: "❌ Error", description: err.error, variant: "destructive" })
-      }
-    } catch {
-      toast({ title: "❌ Network error", variant: "destructive" })
-    }
-  }
 
   const handleDelete = async (docId: string) => {
     try {
@@ -170,69 +119,26 @@ export default function DocumentsPage() {
               className="pl-9"
             />
           </div>
-          <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Document
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add Document</DialogTitle>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label>Name</Label>
-                  <Input value={formName} onChange={(e) => setFormName(e.target.value)} placeholder="Document name" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Type</Label>
-                    <Select value={formType} onValueChange={(v: DocumentType) => setFormType(v)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(["PDF", "Image", "Doc", "Spreadsheet", "Other"] as const).map((t) => (
-                          <SelectItem key={t} value={t}>{DOCUMENT_TYPE_ICONS[t]} {t}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label>Linked To</Label>
-                    <Select value={formEntityType} onValueChange={(v: EntityType) => setFormEntityType(v)}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {(["Property", "Lead", "Portfolio"] as const).map((t) => (
-                          <SelectItem key={t} value={t}>{t}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                <div>
-                  <Label>Entity ID</Label>
-                  <Input value={formEntityId} onChange={(e) => setFormEntityId(e.target.value)} placeholder="Paste property/lead/portfolio ID" />
-                </div>
-                <div>
-                  <Label>Description</Label>
-                  <Textarea value={formDescription} onChange={(e) => setFormDescription(e.target.value)} placeholder="Optional description" />
-                </div>
-                <div>
-                  <Label>Notes</Label>
-                  <Textarea value={formNotes} onChange={(e) => setFormNotes(e.target.value)} placeholder="Optional notes" />
-                </div>
-                <Button onClick={handleAddDocument} className="w-full">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Document
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <Select value={entityFilter} onValueChange={(v: typeof entityFilter) => setEntityFilter(v)}>
+            <SelectTrigger className="w-[160px]">
+              <SelectValue placeholder="All types" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All">All Types</SelectItem>
+              <SelectItem value="Property">Properties</SelectItem>
+              <SelectItem value="Lead">Leads</SelectItem>
+              <SelectItem value="Portfolio">Portfolios</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button onClick={() => setDialogOpen(true)}>
+            <Plus className="h-4 w-4 mr-2" />
+            Add Document
+          </Button>
+          <AddDocumentDialog
+            open={dialogOpen}
+            onOpenChange={setDialogOpen}
+            onSuccess={fetchDocuments}
+          />
         </div>
 
         <Table>

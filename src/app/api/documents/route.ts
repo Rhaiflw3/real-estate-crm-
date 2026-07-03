@@ -2,18 +2,24 @@ import { NextRequest, NextResponse } from 'next/server';
 import { documentsApi, mockStorage as ms, persistMockStorage } from '@/lib/supabase';
 import { getUserId } from '@/lib/auth-utils';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const userId = await getUserId();
     if (!userId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const entityType = searchParams.get('entityType');
+    const entityId = searchParams.get('entityId');
+
     try {
-      const docs = await documentsApi.getAll();
+      const docs = await documentsApi.getAll(entityType || undefined, entityId || undefined);
       return NextResponse.json(docs, { status: 200 });
     } catch {
-      const store = ms?.documents || [];
+      let store = ms?.documents || [];
+      if (entityType) store = store.filter((d: any) => d.entity_type === entityType);
+      if (entityId) store = store.filter((d: any) => d.entity_id === entityId);
       return NextResponse.json(store, { status: 200 });
     }
   } catch (error) {

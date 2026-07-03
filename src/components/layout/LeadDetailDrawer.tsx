@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { X, Phone, Mail, Calendar, Sparkles, Home, DollarSign, Trash2 } from "lucide-react"
+import { X, Phone, Mail, Calendar, Sparkles, Home, DollarSign, Trash2, FileText } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -35,7 +35,9 @@ import { LEAD_STATUSES } from "@/lib/constants/lead-status"
 import type { LeadStatus } from "@/lib/constants/lead-status"
 import type { Lead } from "@/lib/types/lead"
 import type { LeadProperty } from "@/lib/types/lead-property"
+import type { Document } from "@/lib/types/document"
 import { PropertySelector } from "@/components/properties/PropertySelector"
+import { AddDocumentDialog } from "@/components/documents/AddDocumentDialog"
 
 interface LeadDetailDrawerProps {
   lead: Lead | null
@@ -54,6 +56,8 @@ export function LeadDetailDrawer({ lead, open, onOpenChange, onLeadUpdated, onLe
   const [linkedProperties, setLinkedProperties] = useState<LeadProperty[]>([])
   const [showPropertySelector, setShowPropertySelector] = useState(false)
   const [removingPropId, setRemovingPropId] = useState<string | null>(null)
+  const [linkedDocuments, setLinkedDocuments] = useState<Document[]>([])
+  const [showAddDocumentDialog, setShowAddDocumentDialog] = useState(false)
   const { toast } = useToast()
 
   useEffect(() => {
@@ -62,6 +66,10 @@ export function LeadDetailDrawer({ lead, open, onOpenChange, onLeadUpdated, onLe
       .then((r) => r.json())
       .then((data) => setLinkedProperties(Array.isArray(data) ? data : []))
       .catch(() => setLinkedProperties([]));
+    fetch(`/api/leads/${lead.id}/documents`)
+      .then((r) => r.json())
+      .then((data) => setLinkedDocuments(Array.isArray(data) ? data : []))
+      .catch(() => setLinkedDocuments([]));
   }, [open, lead]);
 
   const refreshProperties = () => {
@@ -69,6 +77,14 @@ export function LeadDetailDrawer({ lead, open, onOpenChange, onLeadUpdated, onLe
     fetch(`/api/leads/${lead.id}/properties`)
       .then((r) => r.json())
       .then((data) => setLinkedProperties(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  };
+
+  const refreshDocuments = () => {
+    if (!lead) return;
+    fetch(`/api/leads/${lead.id}/documents`)
+      .then((r) => r.json())
+      .then((data) => setLinkedDocuments(Array.isArray(data) ? data : []))
       .catch(() => {});
   };
 
@@ -491,6 +507,50 @@ export function LeadDetailDrawer({ lead, open, onOpenChange, onLeadUpdated, onLe
                 )}
               </div>
 
+              {/* Display: Documents */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-semibold text-slate-700">Documents</h3>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAddDocumentDialog(true)}
+                    className="text-xs"
+                  >
+                    + Add
+                  </Button>
+                </div>
+                {linkedDocuments.length === 0 ? (
+                  <div className="text-sm text-slate-400 bg-slate-50/50 p-3 rounded-lg border border-slate-100 italic">
+                    No documents linked to this lead.
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {linkedDocuments.map((doc) => (
+                      <div
+                        key={doc.id}
+                        className="flex items-center justify-between p-2.5 rounded-lg border border-slate-200 bg-white"
+                      >
+                        <div className="flex items-center gap-2 min-w-0">
+                          <FileText className="h-4 w-4 text-slate-400 shrink-0" />
+                          <div className="min-w-0">
+                            <span className="font-medium text-sm text-slate-900 truncate block">
+                              {doc.name}
+                            </span>
+                            <span className="text-xs text-slate-500">{doc.type}</span>
+                          </div>
+                        </div>
+                        {doc.description && (
+                          <span className="text-xs text-slate-400 ml-2 shrink-0" title={doc.description}>
+                            info
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
               {/* Display: Notes */}
               <div className="space-y-3">
                 <h3 className="font-semibold text-slate-700">Notes</h3>
@@ -577,6 +637,16 @@ export function LeadDetailDrawer({ lead, open, onOpenChange, onLeadUpdated, onLe
           onOpenChange={setShowPropertySelector}
           leadId={lead.id}
           onPropertyLinked={refreshProperties}
+        />
+      )}
+      {lead && (
+        <AddDocumentDialog
+          open={showAddDocumentDialog}
+          onOpenChange={setShowAddDocumentDialog}
+          onSuccess={refreshDocuments}
+          defaultEntityType="Lead"
+          defaultEntityId={lead.id}
+          entityLabel={lead.name}
         />
       )}
     </Drawer>
