@@ -79,6 +79,10 @@ function isDataRow(row: any[]): boolean {
   return false;
 }
 
+function generateId(): string {
+  return crypto.randomUUID?.() || `${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const userId = await getUserId();
@@ -93,8 +97,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-    const workbook = XLSX.read(buffer, { type: 'buffer' });
+    const arrayBuffer = await file.arrayBuffer();
+    const workbook = XLSX.read(new Uint8Array(arrayBuffer), { type: 'array' });
 
     const targetSheetName = workbook.SheetNames.find(
       (n) => n.includes('Cartera') || n.includes('Propiedades') || n.includes('cartera')
@@ -113,6 +117,7 @@ export async function POST(request: NextRequest) {
     let portfolio: any;
     try {
       const supabaseData = {
+        id: generateId(),
         name: portfolioName,
         description: `Imported from ${file.name}`,
         year: new Date().getFullYear(),
@@ -140,6 +145,8 @@ export async function POST(request: NextRequest) {
     let currentDefaultStatus = 'Available';
     const isPro = portfolioType === 'PRO';
     let propertiesCreated = 0;
+    let rowsSkipped = 0;
+    let rowsFailed = 0;
 
     for (let i = 0; i < rows.length; i++) {
       const row = rows[i];
@@ -156,13 +163,13 @@ export async function POST(request: NextRequest) {
       }
 
       // Skip header rows and empty rows
-      if (firstCell.startsWith('N°') || !isDataRow(row)) continue;
+      if (firstCell.startsWith('N°') || !isDataRow(row)) { rowsSkipped++; continue; }
 
       const title = String(row[1] || '').trim();
-      if (!title) continue;
+      if (!title) { rowsSkipped++; continue; }
 
       const price = parsePrice(row[3]);
-      if (price === null) continue;
+      if (price === null) { rowsSkipped++; continue; }
 
       const areaM2 = parseArea(row[2]);
       const notes = String(row[isPro ? 9 : 8] || '').trim();
@@ -185,6 +192,7 @@ export async function POST(request: NextRequest) {
 
       try {
         const supabasePropertyData = {
+          id: generateId(),
           title: propertyData.title,
           description: propertyData.description || null,
           price: propertyData.price,
@@ -224,6 +232,7 @@ export async function POST(request: NextRequest) {
 
         propertiesCreated++;
       } catch (e) {
+        rowsFailed++;
         console.warn('⚠️ Could not import row:', title, e);
       }
     }
@@ -233,6 +242,9 @@ export async function POST(request: NextRequest) {
       portfolioName: portfolio.name,
       portfolioId: portfolio.id,
       propertiesCreated,
+      rowsProcessed: rows.length,
+      rowsSkipped,
+      rowsFailed,
     }, { status: 200 });
 
   } catch (error) {

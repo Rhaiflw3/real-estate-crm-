@@ -54,10 +54,18 @@ export function ImportExcelDialog({ onImportComplete }: ImportExcelDialogProps) 
 
       if (response.ok) {
         const data = await response.json()
-        toast({
-          title: "✅ Import complete",
-          description: `${data.propertiesCreated} properties imported into "${data.portfolioName}"`,
-        })
+        if (data.propertiesCreated === 0) {
+          toast({
+            title: "⚠️ No properties imported",
+            description: "The file was read but no properties matched the expected format. Check column headers.",
+            variant: "destructive",
+          })
+        } else {
+          toast({
+            title: "✅ Import complete",
+            description: `${data.propertiesCreated} properties imported into "${data.portfolioName}"`,
+          })
+        }
         setOpen(false)
         setFile(null)
         if (onImportComplete) onImportComplete()
