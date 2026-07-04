@@ -67,7 +67,8 @@ export default async function proxy(request: NextRequest) {
     }
 
     // 2. Authenticated user trying to access auth pages (login/signup)
-    if (user && isAuthRoute) {
+    // Allow /auth/signup so invitees can set their password
+    if (user && isAuthRoute && !request.nextUrl.pathname.startsWith('/auth/signup')) {
       if (isDev) console.log(`[Proxy] 🔄 Authenticated user visited auth route. Redirecting to dashboard.`)
       
       const url = request.nextUrl.clone()

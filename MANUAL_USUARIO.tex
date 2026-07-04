@@ -1,0 +1,853 @@
+% ------------------------------------------------------------
+% RF Realty CRM — Manual de Usuario
+% Compilar con: xelatex (Overleaf usa pdfLaTeX por defecto)
+% ------------------------------------------------------------
+\documentclass[12pt,oneside]{article}
+
+% ---- Paquetes ----
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish]{babel}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{bookmark}
+\usepackage{fontawesome5}
+
+% ---- Configuración de página ----
+\geometry{top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+\setlength{\parskip}{6pt}
+\setlength{\parindent}{0pt}
+
+% ---- Colores ----
+\definecolor{primary}{RGB}{37, 99, 235}
+\definecolor{secondary}{RGB}{100, 116, 139}
+\definecolor{accent}{RGB}{245, 158, 11}
+\definecolor{success}{RGB}{16, 185, 129}
+\definecolor{danger}{RGB}{239, 68, 68}
+\definecolor{bglight}{RGB}{248, 250, 252}
+\definecolor{border}{RGB}{226, 232, 240}
+
+% ---- Hipervínculos ----
+\hypersetup{
+  colorlinks=true,
+  linkcolor=primary,
+  urlcolor=primary,
+  citecolor=primary,
+}
+
+% ---- Encabezado y pie ----
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\footnotesize\textcolor{secondary}{RF Realty CRM}}
+\fancyhead[R]{\footnotesize\textcolor{secondary}{Manual de Usuario}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0pt}
+
+% ---- Formato de títulos ----
+\titleformat{\section}{\Large\bfseries\color{primary}}{}{0em}{}[\vspace{-4pt}\rule{\textwidth}{0.5pt}]
+\titleformat{\subsection}{\large\bfseries\color{black!80}}{}{0em}{}
+\titleformat{\subsubsection}{\normalsize\bfseries\color{black!70}}{}{0em}{}
+
+% ---- Portada ----
+\title{
+  \vspace*{3cm}
+  {\Huge\bfseries\color{primary} RF Realty CRM}\\[0.5cm]
+  {\Large Manual de Usuario}\\[1.5cm]
+  {\large Versión 1.0}\\
+  {\large Julio 2026}
+}
+\author{}
+\date{}
+
+% ------------------------------------------------------------
+\begin{document}
+
+\maketitle
+\thispagestyle{empty}
+\vfill
+\begin{center}
+  \textcolor{secondary}{\small Sistema de Gestión Inmobiliaria}\\[4pt]
+  \textcolor{secondary}{\small \url{https://real-estate-crm-ten-rosy.vercel.app}}
+\end{center}
+\newpage
+
+% ---- Índice ----
+\tableofcontents
+\newpage
+
+% ============================================================
+\section{Acerca del Sistema}
+% ============================================================
+
+\textbf{RF Realty CRM} es una plataforma web diseñada para que agentes y corredores de bienes raíces puedan gestionar de forma centralizada sus clientes, propiedades, citas y documentos.
+
+\subsection{¿Qué problemas resuelve?}
+
+\begin{tabularx}{\textwidth}{|X|X|}
+\hline
+\rowcolor{primary!10}
+\textbf{Problema} & \textbf{Solución} \\
+\hline
+Leads perdidos en hojas de cálculo o post-its & Base de datos centralizada con búsqueda instantánea \\
+\hline
+Seguimiento inconsistente de clientes & Pipeline visual con estados (Nuevo $\rightarrow$ Contactado $\rightarrow$ Calificado $\rightarrow$ Negociación $\rightarrow$ Cerrado) \\
+\hline
+Propiedades desorganizadas & Catálogo con filtros, tipos, precios y vinculación a portafolios \\
+\hline
+Citas y llamadas sin registro & Calendario integrado con eventos por tipo y sincronización a Apple Calendar \\
+\hline
+Documentos dispersos & Repositorio único vinculado a leads, propiedades o portafolios \\
+\hline
+Atención lenta a leads de WhatsApp & Captura automática con inteligencia artificial y respuesta inmediata \\
+\hline
+\end{tabularx}
+
+\subsection{Capacidades principales}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Gestión de leads:} Alta, edición, eliminación, pipeline Kanban, filtros.
+  \item \textbf{Catálogo de propiedades:} CRUD completo, importación desde Excel.
+  \item \textbf{Portafolios:} Agrupación de propiedades por criterios (año, tipo, proyecto, etc.).
+  \item \textbf{Calendario:} Eventos con tipos (Llamada, Reunión, Visita, Tarea), sincronización WebCal.
+  \item \textbf{Documentos:} Subida de archivos PDF, DOC, DOCX, XLS, XLSX con vista previa.
+  \item \textbf{WhatsApp AI:} Recepción automática de leads desde WhatsApp con extracción inteligente de datos.
+  \item \textbf{Dashboard:} KPIs, gráficos, insights del negocio en tiempo real.
+\end{itemize}
+
+% ============================================================
+\section{Requisitos y Acceso}
+% ============================================================
+
+\subsection{Requisitos técnicos}
+
+\begin{tabularx}{\textwidth}{|X|X|}
+\hline
+\rowcolor{primary!10}
+\textbf{Requisito} & \textbf{Detalle} \\
+\hline
+Dispositivo & Computadora, tablet o smartphone \\
+\hline
+Navegador & Google Chrome (recomendado), Mozilla Firefox, Safari, Microsoft Edge \\
+\hline
+Conexión a internet & Mínimo 1 Mbps (funciona con 3G/4G móvil) \\
+\hline
+Resolución de pantalla & Mínimo 320px (smartphone), recomendado 1024px o más \\
+\hline
+Cuenta de usuario & Proporcionada por el administrador del sistema \\
+\hline
+\end{tabularx}
+
+\subsection{URL de acceso}
+
+\begin{center}
+\fbox{\Large\url{https://real-estate-crm-ten-rosy.vercel.app}}
+\end{center}
+
+\noindent\textbf{Nota:} El acceso al sistema es privado y por invitación. No es posible registrarse de forma pública. Si necesitas una cuenta, contacta al administrador.
+
+% ============================================================
+\section{Inicio de Sesión}
+% ============================================================
+
+\subsection{Ingresar al sistema}
+
+\begin{enumerate}[leftmargin=*]
+  \item Abre tu navegador web (Chrome, Safari, Edge o Firefox).
+  \item En la barra de direcciones, escribe la URL del sistema.
+  \item Presiona \textbf{Enter}.
+  \item Verás la pantalla de inicio de sesión con los campos \textbf{Email address} y \textbf{Password}.
+  \item Ingresa tu correo electrónico.
+  \item Ingresa tu contraseña.
+  \item Haz clic en el botón \textbf{“Sign in”}.
+\end{enumerate}
+
+\subsection{Recuperar contraseña}
+
+Si olvidaste tu contraseña:
+
+\begin{enumerate}[leftmargin=*]
+  \item En la pantalla de login, haz clic en \textbf{“Forgot password”} (si está habilitado).
+  \item Ingresa tu correo electrónico.
+  \item Revisa tu bandeja de entrada: recibirás un enlace para restablecerla.
+  \item Si no ves el correo, revisa la carpeta de Spam o Correo no deseado.
+\end{enumerate}
+
+\noindent Si la opción “Forgot password” no está disponible, contacta al administrador.
+
+\subsection{Cerrar sesión}
+
+\begin{enumerate}[leftmargin=*]
+  \item En la esquina inferior izquierda de la barra lateral, haz clic en tu nombre o avatar.
+  \item Selecciona \textbf{“Sign out”}.
+  \item Serás redirigido a la pantalla de inicio de sesión.
+\end{enumerate}
+
+\subsection{Primera vez que ingresas}
+
+Si es tu primer acceso, el administrador te habrá enviado una invitación por correo electrónico:
+
+\begin{enumerate}[leftmargin=*]
+  \item Revisa tu bandeja de entrada: busca un correo de \textbf{Supabase Authentication}.
+  \item Haz clic en el enlace \textbf{“Accept Invitation”}.
+  \item Establece tu nombre completo y una contraseña segura.
+  \item Confirma la contraseña.
+  \item Haz clic en \textbf{“Save”} o \textbf{“Confirm”}.
+  \item Ve a la URL del sistema e inicia sesión con tu correo y la nueva contraseña.
+\end{enumerate}
+
+\noindent\textbf{Recomendación de contraseña segura:} Usa al menos 8 caracteres, combinando mayúsculas, minúsculas, números y símbolos. Ejemplo: \texttt{Casa\#2026!}
+
+% ============================================================
+\section{Panel Principal (Dashboard)}
+% ============================================================
+
+\subsection{Tarjetas de resumen}
+
+Al iniciar sesión, verás cuatro tarjetas con métricas clave:
+
+\begin{tabularx}{\textwidth}{|X|X|c|}
+\hline
+\rowcolor{primary!10}
+\textbf{Tarjeta} & \textbf{Muestra} & \textbf{Ejemplo} \\
+\hline
+Total Leads & Número total de clientes potenciales & 24 leads \\
+\hline
+Properties & Número total de propiedades en el catálogo & 102 propiedades \\
+\hline
+Portfolios & Número de portafolios creados & 3 portafolios \\
+\hline
+Events & Eventos del calendario en el mes actual & 12 eventos \\
+\hline
+\end{tabularx}
+
+\subsection{Gráficos}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Gráfico de leads por mes (barras):} Muestra la cantidad de leads creados en cada uno de los últimos 6 meses.
+  \item \textbf{Gráfico de propiedades por tipo (anillo):} Distribución porcentual de propiedades según su tipo (House, Apartment, Land, Commercial).
+\end{itemize}
+
+\subsection{Insights rápidos}
+
+\begin{tabularx}{\textwidth}{|X|X|}
+\hline
+\rowcolor{primary!10}
+\textbf{Insight} & \textbf{Descripción} \\
+\hline
+Último lead & Nombre del lead más recientemente creado \\
+\hline
+Propiedad más cara & Precio y título de la propiedad de mayor valor \\
+\hline
+Total portafolios & Número total de portafolios activos \\
+\hline
+\end{tabularx}
+
+% ============================================================
+\section{Navegación General}
+% ============================================================
+
+\subsection{Barra lateral}
+
+A la izquierda de la pantalla encontrarás la barra de navegación principal:
+
+\begin{tabularx}{\textwidth}{|c|X|X|}
+\hline
+\rowcolor{primary!10}
+\textbf{Ícono} & \textbf{Sección} & \textbf{Descripción} \\
+\hline
+\faChartBar & Dashboard & Panel principal con resumen del negocio \\
+\hline
+\faUsers & Leads & Gestión de clientes potenciales \\
+\hline
+\faHome & Properties & Catálogo de propiedades inmobiliarias \\
+\hline
+\faFolderOpen & Portfolio & Portafolios de propiedades agrupadas \\
+\hline
+\faCalendarAlt & Calendar & Calendario de eventos, citas y tareas \\
+\hline
+\faFileAlt & Documents & Repositorio de documentos \\
+\hline
+\end{tabularx}
+
+\subsection{Cómo moverse entre secciones}
+
+\begin{enumerate}[leftmargin=*]
+  \item Haz clic en cualquier ícono o nombre de sección en la barra lateral.
+  \item La sección seleccionada se resaltará con un color diferente.
+  \item El contenido principal cambiará automáticamente.
+  \item La barra lateral permanece visible para cambiar de sección rápidamente.
+\end{enumerate}
+
+\subsection{En dispositivos móviles}
+
+En pantallas pequeñas (smartphones), la barra lateral se oculta automáticamente. Para acceder a ella:
+
+\begin{enumerate}[leftmargin=*]
+  \item Toca el ícono de menú (\faBars) en la esquina superior izquierda.
+  \item Se desplegará la barra lateral.
+  \item Toca la sección a la que deseas ir.
+  \item La barra se cerrará automáticamente.
+\end{enumerate}
+
+% ============================================================
+\section{Gestión de Leads (Clientes Potenciales)}
+% ============================================================
+
+\subsection{¿Qué es un lead?}
+
+Un \textbf{lead} es una persona que ha mostrado interés en comprar, vender o alquilar una propiedad. Cada lead contiene: nombre completo, correo electrónico, número de teléfono, estado actual en el proceso de venta, fuente de origen, notas y resumen de IA (si aplica).
+
+\subsection{Vista de lista}
+
+Al entrar en \textbf{Leads}, verás una tabla con todos tus leads:
+
+\begin{tabularx}{\textwidth}{|X|X|X|}
+\hline
+\rowcolor{primary!10}
+\textbf{Columna} & \textbf{Descripción} & \textbf{Ejemplo} \\
+\hline
+Name & Nombre completo del lead & María García López \\
+\hline
+Email & Correo electrónico & maria@ejemplo.com \\
+\hline
+Phone & Teléfono de contacto & +51999000111 \\
+\hline
+Status & Estado actual (con etiqueta de color) & New \\
+\hline
+Source & Origen del lead & Website \\
+\hline
+Created & Fecha de creación & 2026-06-15 \\
+\hline
+\end{tabularx}
+
+\subsection{Crear un lead nuevo}
+
+\begin{enumerate}[leftmargin=*]
+  \item Haz clic en el botón \textbf{“+ Add Lead”} en la parte superior derecha.
+  \item Completa el formulario:
+\end{enumerate}
+
+\begin{tabularx}{\textwidth}{|X|c|X|X|}
+\hline
+\rowcolor{primary!10}
+\textbf{Campo} & \textbf{Obligatorio} & \textbf{Descripción} & \textbf{Ejemplo} \\
+\hline
+Name & Sí & Nombre completo del cliente & María García López \\
+\hline
+Email & Sí & Correo electrónico válido & maria@ejemplo.com \\
+\hline
+Phone & No & Teléfono con código de país & +51999000111 \\
+\hline
+Status & Sí & Estado en el pipeline & New \\
+\hline
+Source & Sí & Cómo llegó el cliente & Website \\
+\hline
+Notes & No & Notas internas o comentarios & Busca casa en Miraflores, 3 hab \\
+\hline
+\end{tabularx}
+
+\begin{enumerate}[leftmargin=*, start=3]
+  \item Haz clic en el botón \textbf{“Add Lead”}.
+  \item El lead aparecerá inmediatamente en la tabla.
+\end{enumerate}
+
+\subsection{Ver detalles de un lead}
+
+\begin{enumerate}[leftmargin=*]
+  \item En la tabla de leads, haz clic en el \textbf{nombre} del lead.
+  \item Se abrirá un panel lateral (drawer) desde la derecha con:
+  \begin{itemize}
+    \item Información de contacto (email, teléfono, fecha de creación)
+    \item Estado actual y fuente de origen
+    \item Propiedades de Interés (propiedades vinculadas)
+    \item Documentos (archivos asociados)
+    \item Notas
+    \item Resumen de IA (si aplica)
+  \end{itemize}
+\end{enumerate}
+
+\subsection{Editar un lead}
+
+\begin{enumerate}[leftmargin=*]
+  \item Abre el lead (haz clic en su nombre).
+  \item En el panel lateral, haz clic en \textbf{“Edit Lead”}.
+  \item Modifica los campos que necesites.
+  \item Haz clic en \textbf{“Save Changes”} para guardar o \textbf{“Cancel”} para descartar.
+\end{enumerate}
+
+\subsection{Eliminar un lead}
+
+\begin{enumerate}[leftmargin=*]
+  \item Abre el lead.
+  \item Haz clic en \textbf{“Delete Lead”}.
+  \item Aparecerá una ventana de confirmación.
+  \item Haz clic en \textbf{“Delete”} para confirmar.
+\end{enumerate}
+
+\noindent\textbf{Importante:} La eliminación es permanente. No se puede recuperar un lead eliminado.
+
+\subsection{Pipeline Kanban (vista por etapas)}
+
+El sistema incluye una vista Kanban que organiza los leads en columnas según su estado:
+
+\begin{longtable}{|X|X|X|}
+\hline
+\rowcolor{primary!10}
+\textbf{Columna} & \textbf{Significado} & \textbf{Acción sugerida} \\
+\hline
+\endhead
+New & Lead recién ingresado, sin contacto & Contactar lo antes posible \\
+\hline
+Contacted & Se ha establecido contacto inicial & Programar seguimiento \\
+\hline
+Qualified & Cliente calificado con interés real & Enviar propuestas \\
+\hline
+Negotiation & En negociación activa & Cerrar acuerdo \\
+\hline
+Closed Won & Venta cerrada exitosamente & Dar seguimiento post-venta \\
+\hline
+Closed Lost & Venta perdida & Archivar para referencia futura \\
+\hline
+\end{longtable}
+
+\noindent\textbf{Cómo usar el Kanban:}
+\begin{enumerate}[leftmargin=*]
+  \item En la página de Leads, haz clic en el botón \textbf{“Kanban”}.
+  \item Los leads se organizarán en columnas verticales por estado.
+  \item Arrástralos con el mouse de una columna a otra para cambiar su estado.
+  \item Para volver a la vista de tabla, haz clic en \textbf{“List”}.
+\end{enumerate}
+
+\subsection{Vincular propiedades a un lead}
+
+\begin{enumerate}[leftmargin=*]
+  \item Abre el lead (haz clic en su nombre).
+  \item En la sección \textbf{“Propiedades de Interés”}, haz clic en \textbf{“+ Agregar”}.
+  \item Selecciona la propiedad deseada.
+  \item Define el nivel de interés: Bajo, Medio, Alto u Oferta.
+  \item Haz clic en \textbf{“Link Property”}.
+\end{enumerate}
+
+\noindent\textbf{Para desvincular:} haz clic en el ícono de papelera (\faTrash) junto a la propiedad.
+
+\subsection{Filtrar y buscar leads}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Búsqueda por texto:} Escribe en el campo de búsqueda. El sistema buscará en nombre, email y notas.
+  \item \textbf{Filtro por estado:} Usa los botones de filtro rápido (All, New, Contacted, etc.).
+\end{itemize}
+
+% ============================================================
+\section{Gestión de Propiedades}
+% ============================================================
+
+\subsection{Lista de propiedades}
+
+En \textbf{Properties} verás el catálogo completo con: título, precio, tipo (House, Apartment, Land, Commercial), estado (Available, Sold, Rented, Under Construction), ciudad, habitaciones, baños y área.
+
+\subsection{Estados de propiedad}
+
+\begin{tabularx}{\textwidth}{|X|X|}
+\hline
+\rowcolor{primary!10}
+\textbf{Estado} & \textbf{Significado} \\
+\hline
+Available & Disponible para venta o alquiler \\
+\hline
+Sold & Vendida \\
+\hline
+Rented & Alquilada \\
+\hline
+Under Construction & En construcción o proyecto \\
+\hline
+\end{tabularx}
+
+\subsection{Crear una propiedad}
+
+\begin{enumerate}[leftmargin=*]
+  \item Haz clic en \textbf{“+ Add Property”}.
+  \item Completa los campos obligatorios: título, precio, tipo.
+  \item Opcionalmente agrega: habitaciones, baños, área, dirección, ciudad, descripción, notas.
+  \item Haz clic en \textbf{“Add Property”}.
+\end{enumerate}
+
+\subsection{Importar propiedades desde Excel}
+
+Puedes cargar múltiples propiedades a la vez usando un archivo \texttt{.xlsx}:
+
+\noindent\textbf{Ejemplo de fila en Excel:}
+
+\begin{verbatim}
+| Título               | Precio  | Tipo      | Estado    | Dirección      | Ciudad |
+|----------------------|---------|-----------|-----------|----------------|--------|
+| Casa en Miraflores   | 250000  | House     | Available | Av. Larco 123  | Lima   |
+| Depto en San Isidro  | 180000  | Apartment | Available | Calle Olivos 456 | Lima  |
+\end{verbatim}
+
+\noindent\textbf{Pasos:}
+\begin{enumerate}[leftmargin=*]
+  \item En \textbf{Properties}, haz clic en \textbf{“Import Excel”}.
+  \item Selecciona el archivo \texttt{.xlsx}.
+  \item El sistema detecta las columnas y crea las propiedades automáticamente.
+\end{enumerate}
+
+% ============================================================
+\section{Portafolios de Propiedades}
+% ============================================================
+
+\subsection{¿Qué es un portafolio?}
+
+Un \textbf{portafolio} es una agrupación de propiedades bajo un mismo tema o categoría. Ejemplos: “Catálogo 2025”, “Casas Premium”, “Inversiones Comerciales”.
+
+\subsection{Crear un portafolio}
+
+\begin{enumerate}[leftmargin=*]
+  \item Ve a \textbf{Portfolio}.
+  \item Haz clic en \textbf{“+ New Portfolio”}.
+  \item Ingresa: nombre, descripción (opcional), año (opcional), tipo, estado.
+  \item Haz clic en \textbf{“Create Portfolio”}.
+\end{enumerate}
+
+\subsection{Vincular propiedades}
+
+\begin{enumerate}[leftmargin=*]
+  \item Abre un portafolio.
+  \item Haz clic en \textbf{“+ Add Properties”}.
+  \item Selecciona las propiedades que deseas incluir.
+  \item Las propiedades aparecerán en la lista del portafolio.
+\end{enumerate}
+
+\noindent\textbf{Nota:} Eliminar un portafolio no elimina las propiedades que contiene. Solo se rompe la agrupación.
+
+% ============================================================
+\section{Calendario y Eventos}
+% ============================================================
+
+\subsection{Vista general}
+
+El calendario muestra una cuadrícula mensual con todos tus eventos programados.
+
+\subsection{Tipos de eventos y colores}
+
+\begin{tabularx}{\textwidth}{|X|X|X|}
+\hline
+\rowcolor{primary!10}
+\textbf{Tipo} & \textbf{¿Para qué usarlo?} & \textbf{Color} \\
+\hline
+Call & Llamada telefónica con un cliente & Azul \\
+\hline
+Meeting & Reunión presencial o virtual & Púrpura \\
+\hline
+Showing & Visita a una propiedad con un cliente & Verde \\
+\hline
+Task & Tarea pendiente & Ámbar \\
+\hline
+Other & Cualquier otro tipo de evento & Gris \\
+\hline
+\end{tabularx}
+
+\subsection{Crear un evento}
+
+\begin{enumerate}[leftmargin=*]
+  \item Haz clic en cualquier \textbf{día} del calendario.
+  \item Completa: título (obligatorio), hora (opcional), tipo (obligatorio), notas (opcional).
+  \item Haz clic en \textbf{“Add Event”}.
+\end{enumerate}
+
+\subsection{Eliminar un evento}
+
+Pasa el mouse sobre el evento en el calendario y haz clic en el ícono de papelera (\faTrash) que aparece.
+
+\subsection{Sincronizar con Apple Calendar (WebCal)}
+
+\noindent\textbf{Paso 1: Obtener el enlace}
+\begin{enumerate}[leftmargin=*]
+  \item En \textbf{Calendar}, haz clic en el botón \textbf{“WebCal”}.
+  \item Se copiará un enlace al portapapeles.
+\end{enumerate}
+
+\noindent\textbf{Paso 2: En iPhone o iPad}
+\begin{enumerate}[leftmargin=*]
+  \item Settings $\rightarrow$ Calendar $\rightarrow$ Accounts $\rightarrow$ Add Account $\rightarrow$ Other.
+  \item Add Subscribed Calendar.
+  \item Pega el enlace y toca Save.
+\end{enumerate}
+
+\noindent\textbf{Paso 2: En Mac}
+\begin{enumerate}[leftmargin=*]
+  \item Calendar $\rightarrow$ File $\rightarrow$ New Calendar Subscription.
+  \item Pega el enlace, configura actualización automática, haz clic en OK.
+\end{enumerate}
+
+\noindent Los eventos del CRM aparecerán automáticamente en tu calendario de Apple.
+
+% ============================================================
+\section{Documentos}
+% ============================================================
+
+\subsection{¿Qué son los documentos?}
+
+Los documentos son archivos que puedes subir y asociar a leads, propiedades o portafolios. Cada documento puede ser un PDF, Word o Excel. El sistema permite:
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Subir} archivos desde tu computadora.
+  \item \textbf{Previsualizar} PDFs directamente en el navegador.
+  \item \textbf{Descargar} cualquier archivo.
+  \item \textbf{Vincular} documentos a leads, propiedades o portafolios.
+\end{itemize}
+
+\subsection{Tipos de archivo permitidos}
+
+\begin{tabularx}{\textwidth}{|X|X|c|}
+\hline
+\rowcolor{primary!10}
+\textbf{Tipo} & \textbf{Extensión} & \textbf{Vista previa} \\
+\hline
+PDF & .pdf & Sí (en navegador) \\
+\hline
+Word & .doc, .docx & No (solo descarga) \\
+\hline
+Excel & .xls, .xlsx & No (solo descarga) \\
+\hline
+\end{tabularx}
+
+\noindent\textbf{Límite:} 10 MB por archivo.
+
+\subsection{Subir un documento}
+
+\textbf{Método 1: Desde la página Documents}
+\begin{enumerate}[leftmargin=*]
+  \item Ve a \textbf{Documents}.
+  \item Haz clic en \textbf{“+ Add Document”}.
+  \item Completa: nombre, selecciona archivo, tipo de entidad vinculada (Property, Lead o Portfolio), ID de la entidad.
+  \item Haz clic en \textbf{“Upload Document”}.
+\end{enumerate}
+
+\textbf{Método 2: Desde el panel de un Lead}
+\begin{enumerate}[leftmargin=*]
+  \item Abre un lead.
+  \item En la sección \textbf{Documents}, haz clic en \textbf{“+ Add”}.
+  \item Los campos de entidad ya están prellenados.
+  \item Selecciona el archivo y completa los datos.
+  \item Haz clic en \textbf{“Upload Document”}.
+\end{enumerate}
+
+\subsection{Previsualizar un documento}
+
+\begin{enumerate}[leftmargin=*]
+  \item En la lista de documentos (tabla o panel lateral del lead), haz clic en un documento que tenga un archivo subido.
+  \item Se abrirá un modal con:
+  \begin{itemize}
+    \item \textbf{Pantalla completa} para PDFs (se renderiza en el navegador).
+    \item \textbf{Botón de descarga} para cualquier tipo de archivo.
+    \item \textbf{Botón “Download”} para guardar una copia local.
+  \end{itemize}
+\end{enumerate}
+
+\subsection{Filtrar documentos}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Búsqueda:} Por nombre, descripción o notas.
+  \item \textbf{Filtro por entidad:} All Types, Properties, Leads, Portfolios.
+\end{itemize}
+
+\subsection{Eliminar un documento}
+
+Haz clic en el ícono de papelera (\faTrash) en la tabla de documentos. El archivo en el almacenamiento también se elimina.
+
+% ============================================================
+\section{Integración con WhatsApp}
+% ============================================================
+
+\subsection{¿Cómo funciona?}
+
+Cuando un cliente te escribe por WhatsApp, el sistema automatiza la atención:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Recibe} el mensaje de WhatsApp automáticamente.
+  \item \textbf{Analiza} el mensaje usando inteligencia artificial (Gemini de Google).
+  \item \textbf{Extrae} los datos del cliente: nombre, email, teléfono, presupuesto, tipo de propiedad, ubicación, habitaciones.
+  \item \textbf{Crea} un lead en el CRM sin intervención manual.
+  \item \textbf{Responde} al cliente confirmando que recibió su información.
+\end{enumerate}
+
+\subsection{Ejemplo práctico}
+
+\noindent Mensaje del cliente:
+\begin{quote}
+“Hola, busco un departamento de 3 habitaciones en San Isidro, mi presupuesto es de 250k. Soy Juan Pérez, mi correo es juan@email.com”
+\end{quote}
+
+\noindent Datos extraídos por la IA:
+
+\begin{tabularx}{\textwidth}{|X|X|}
+\hline
+\rowcolor{primary!10}
+\textbf{Campo} & \textbf{Valor extraído} \\
+\hline
+Nombre & Juan Pérez \\
+\hline
+Email & juan@email.com \\
+\hline
+Teléfono & (número de WhatsApp del cliente) \\
+\hline
+Presupuesto & \$250,000 \\
+\hline
+Tipo de propiedad & Apartment \\
+\hline
+Ubicación & San Isidro \\
+\hline
+Habitaciones & 3 \\
+\hline
+\end{tabularx}
+
+\subsection{Ver leads de WhatsApp}
+
+Los leads creados por WhatsApp aparecen en \textbf{Leads} con fuente “WhatsApp”. La nota del lead contiene los detalles extraídos.
+
+\subsection{Requisitos técnicos (para el administrador)}
+
+\begin{enumerate}[leftmargin=*]
+  \item Obtener una API Key de Gemini en \url{https://aistudio.google.com}.
+  \item Configurar Twilio WhatsApp con webhook hacia:
+  \begin{center}
+  \url{https://real-estate-crm-ten-rosy.vercel.app/api/webhooks/twilio}
+  \end{center}
+  \item Agregar \texttt{GEMINI\_API\_KEY} en las variables de entorno del hosting.
+\end{enumerate}
+
+\subsection{Limitaciones actuales}
+
+\begin{itemize}[leftmargin=*]
+  \item La IA funciona mejor con mensajes en español claros y directos.
+  \item Si el cliente no proporciona nombre o email, se usan valores genéricos.
+  \item La respuesta automática es genérica (no responde preguntas específicas sobre propiedades).
+\end{itemize}
+
+% ============================================================
+\section{Solución de Problemas}
+% ============================================================
+
+\subsection{No puedo iniciar sesión}
+
+\begin{tabularx}{\textwidth}{|X|X|}
+\hline
+\rowcolor{primary!10}
+\textbf{Posible causa} & \textbf{Solución} \\
+\hline
+Contraseña incorrecta & Usa “Forgot password” para restablecerla \\
+\hline
+Cuenta no activada & Revisa tu correo (incluyendo Spam) \\
+\hline
+Error del navegador & Limpia la caché: Configuración $\rightarrow$ Privacidad $\rightarrow$ Borrar datos \\
+\hline
+\end{tabularx}
+
+\subsection{La importación de Excel falla}
+
+\begin{tabularx}{\textwidth}{|X|X|}
+\hline
+\rowcolor{primary!10}
+\textbf{Problema} & \textbf{Solución} \\
+\hline
+Archivo no se selecciona & Asegúrate de que sea \texttt{.xlsx} \\
+\hline
+Columnas no reconocidas & Verifica los encabezados \\
+\hline
+Precios no se importan & Solo números, sin \$ ni comas \\
+\hline
+\end{tabularx}
+
+\subsection{El calendario no se sincroniza con iPhone}
+
+\begin{enumerate}[leftmargin=*]
+  \item Verifica que el enlace WebCal esté correctamente copiado.
+  \item Sigue los pasos exactos de la sección 9.6.
+  \item La sincronización puede tomar unos minutos.
+  \item Si persiste, elimina la suscripción y vuelve a crearla.
+\end{enumerate}
+
+\subsection{No llegan leads de WhatsApp}
+
+\begin{tabularx}{\textwidth}{|X|X|}
+\hline
+\rowcolor{primary!10}
+\textbf{Posible causa} & \textbf{Solución} \\
+\hline
+Webhook no configurado & El admin debe configurar la URL en Twilio \\
+\hline
+API Key de Gemini no configurada & Agregar \texttt{GEMINI\_API\_KEY} en variables de entorno \\
+\hline
+Mensaje muy corto & “Hola”, “Gracias” no generan lead \\
+\hline
+\end{tabularx}
+
+% ============================================================
+\section{Glosario de Términos}
+% ============================================================
+
+\begin{longtable}{|X|X|}
+\hline
+\rowcolor{primary!10}
+\textbf{Término} & \textbf{Definición} \\
+\hline
+\endhead
+Lead & Cliente potencial que ha mostrado interés en una propiedad \\
+\hline
+Pipeline & Proceso de ventas organizado en etapas \\
+\hline
+Kanban & Método visual donde las tareas se mueven entre columnas por estado \\
+\hline
+Portafolio & Agrupación de propiedades bajo un mismo tema \\
+\hline
+WebCal & Estándar de sincronización de calendarios (.ics) \\
+\hline
+Webhook & Mecanismo que envía datos automáticamente entre sistemas \\
+\hline
+Gemini & Modelo de IA de Google para analizar mensajes \\
+\hline
+Twilio & Plataforma de comunicaciones para WhatsApp \\
+\hline
+KPI & Indicador clave de rendimiento \\
+\hline
+Entity ID & Identificador único de un lead, propiedad o portafolio \\
+\hline
+CRUD & Crear, Leer, Actualizar, Eliminar \\
+\hline
+\end{longtable}
+
+% ============================================================
+\section{Soporte y Contacto}
+% ============================================================
+
+\subsection{Reportar problemas}
+
+Si encuentras algún error, contacta al administrador proporcionando:
+\begin{enumerate}[leftmargin=*]
+  \item Descripción del problema: ¿qué estabas haciendo?
+  \item Pantallazo (si es posible).
+  \item URL exacta de la página.
+  \item Navegador y dispositivo.
+\end{enumerate}
+
+\subsection{Disponibilidad}
+
+El sistema está alojado en la nube con una disponibilidad objetivo del 99.9\%.
+
+\vspace{1cm}
+\begin{center}
+\rule{5cm}{0.5pt}\\[4pt]
+\textit{Fin del manual}\\[2pt]
+RF Realty CRM — Versión 1.0\\[2pt]
+Julio 2026
+\end{center}
+
+\end{document}
