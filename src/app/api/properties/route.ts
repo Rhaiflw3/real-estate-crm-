@@ -53,7 +53,7 @@ export async function GET() {
     console.log('📥 GET /api/properties - Fetching properties from Supabase');
 
     try {
-      const supabaseProperties = await propertiesApi.getAll(userId);
+      const supabaseProperties = await propertiesApi.getAll();
       console.log(`✅ Retrieved ${supabaseProperties.length} properties from Supabase`);
 
       const properties = supabaseProperties.map(transformSupabaseProperty);
@@ -65,7 +65,6 @@ export async function GET() {
       try {
         const { prisma } = require('@/lib/prisma');
         const prismaProperties = await prisma.property.findMany({
-          where: { userId },
           orderBy: { createdAt: 'desc' },
         });
         console.log(`✅ Retrieved ${prismaProperties.length} properties from Prisma fallback`);
@@ -74,8 +73,7 @@ export async function GET() {
         console.log('⚠️ Prisma also failed, using in-memory fallback');
 
         const { inMemoryProperties } = require('@/lib/in-memory-store');
-        const userProperties = inMemoryProperties.filter((p: any) => p.userId === userId);
-        return NextResponse.json(userProperties, { status: 200 });
+        return NextResponse.json(inMemoryProperties, { status: 200 });
       }
     }
 
